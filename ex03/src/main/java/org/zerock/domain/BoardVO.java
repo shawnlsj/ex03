@@ -10,6 +10,9 @@ public class BoardVO {
 	private String writer;//WRITER	VARCHAR2(50 BYTE)
 	private Date regdate; //REGDATE	DATE
 	private Date updateDate; //UPDATEDATE	DATE
+	
+	private int replyCnt;
+	
 	public Long getBno() {
 		return bno;
 	}
@@ -46,10 +49,19 @@ public class BoardVO {
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
 	}
+		
+
+	public int getReplyCnt() {
+		return replyCnt;
+	}
+	public void setReplyCnt(int replyCnt) {
+		this.replyCnt = replyCnt;
+	}
 	
 	@Override
 	public String toString() {
 		return "BoardVO [bno=" + bno + ", title=" + title + ", content=" + content + ", writer=" + writer + ", regdate="
-				+ regdate + ", updateDate=" + updateDate + "]";
-	}
+				+ regdate + ", updateDate=" + updateDate + ", replyCnt=" + replyCnt + "]";
+	}	
+	
 }

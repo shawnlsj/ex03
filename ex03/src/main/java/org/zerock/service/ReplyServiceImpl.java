@@ -3,10 +3,13 @@ package org.zerock.service;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.domain.Criteria;
 import org.zerock.domain.ReplyPageDTO;
 import org.zerock.domain.ReplyVO;
+import org.zerock.mapper.BoardMapper;
 import org.zerock.mapper.ReplyMapper;
 
 @Service
@@ -15,16 +18,26 @@ public class ReplyServiceImpl implements ReplyService {
 	private static final Logger log = Logger.getLogger(ReplyServiceImpl.class);
 	
 	private ReplyMapper mapper;
-
-	public ReplyServiceImpl(ReplyMapper mapper) {
-		super();
+	private BoardMapper boardMapper;
+	
+	
+	@Autowired
+	public void setMapper(ReplyMapper mapper) {
 		this.mapper = mapper;
 	}
-
+	
+	@Autowired
+	public void setBoardMapper(BoardMapper boardMapper) {
+		this.boardMapper = boardMapper;
+	}
+	
+	@Transactional
 	@Override
 	public int register(ReplyVO vo) {
 		log.info("register 실행" + vo);
+		boardMapper.updateReplyCnt(vo.getBno(),1);
 		return mapper.insert(vo);
+	
 	}
 
 	@Override
@@ -38,10 +51,16 @@ public class ReplyServiceImpl implements ReplyService {
 		log.info("modify 실행" + vo);
 		return mapper.update(vo);
 	}
-
+	
+	@Transactional
 	@Override
 	public int remove(Long rno) {
 		log.info("remove 실행" + rno);
+		
+		ReplyVO vo = mapper.read(rno);
+		
+		boardMapper.updateReplyCnt(vo.getBno(), -1);
+		
 		return mapper.delete(rno);
 	}
 
