@@ -61,7 +61,8 @@ public class Criteria {
 	}
 	
 	public String getListLink() {
-		UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/hello")
+		
+		UriComponentsBuilder builder = UriComponentsBuilder.fromPath("")
 				.queryParam("pageNum", this.getPageNum())
 				.queryParam("amound", this.getAmount())
 				.queryParam("type", this.getType())

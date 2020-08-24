@@ -51,6 +51,79 @@
         </div>
     </div>
 </div>
+<style>
+    .uploadResult {
+        width:100%;
+        background-color:gray;
+    }
+    
+    .uploadResult ul{
+        display:flex;
+        flex-flow: row;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .uploadResult ul li{
+        list-style: none;
+        padding: 10px;
+        align-content: center;
+        text-align: center;
+    }
+    
+    .uploadResult ul li img{
+        width: 100px;
+    }
+    
+    .uploadResult ul li span{
+        color: white;
+    }
+    
+    .bigPictureWrapper{
+        position: absolute;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        top: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: gray;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+    .bigPicture{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .bigPicture img{
+        width: 600px;
+    }
+</style>
+
+<div class="bigPictureWrapper">
+	<div class="bigPicture">
+
+	</div>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">Files</div>
+            <div class="panel-body">
+                <div class="uploadResult">
+					<ul>
+					</ul>
+				</div>
+			</div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-lg-12">
@@ -107,6 +180,14 @@
 <script src="/ex03/resources/js/reply.js"></script>
 <script>
 $(document).ready(function(){
+
+			
+		$(".bigPictureWrapper").on("click", function(e){
+			$(".bigPicture").animate({width:"0%", height:"0%"}, 1000);
+			setTimeout(function(){
+				$('.bigPictureWrapper').hide();
+			}, 1000);
+		});
         var bnoValue = "<c:out value='${board.bno}'/>";
         var replyUL = $(".chat");
 			
@@ -114,7 +195,72 @@ $(document).ready(function(){
 		var replyPageFooter = $(".panel-footer");
 	
 		showList(1);
-	
+		
+	//	(function(){
+			var bno = "<c:out value='${board.bno}'/>";
+			$.getJSON("/ex03/board/getAttachList", {bno:bno}, function(arr){
+
+		console.log(arr);
+
+		var str = "";
+
+		$(arr).each(function(i, attach){
+
+			if(attach.fileType){
+				var fileCallPath = 
+					encodeURIComponent(attach.uploadPath+"/s_"+attach.uuid+"_"+attach.fileName);
+				
+				str += "<li data-path='"+attach.uploadPath+"' "
+							+"data-uuid='"+attach.uuid+"' "
+							+"data-filename='"+attach.fileName+"' "
+							+"data-type='"+attach.fileType+"'>"
+							+"<div>"
+							+"<img src='/ex03/display?fileName="+fileCallPath+"'>"
+							+"</div>"
+					+"</li>";
+			} else{
+				str += "<li data-path='"+attach.uploadPath+"' "
+							+"data-uuid='"+attach.uuid+"' "
+							+"data-filename='"+attach.fileName+"' "
+							+"data-type='"+attach.fileType+"'>"
+							+"<div>"
+							+"<img src='/ex03/resources/img/attach.png'>"
+							+"</div>"
+					+"</li>";
+			}
+		});
+
+			$(".uploadResult ul").html(str);
+			});
+		//})();
+
+
+		$(".uploadResult").on("click", "li", function(e){
+			console.log("view image");
+
+			var liObj = $(this);
+
+			var path = encodeURIComponent(liObj.data("path")
+											+"/"+liObj.data("uuid")
+											+"_"+liObj.data("filename"));
+			if(liObj.data("type")){
+				console.log("path : " + path);
+				showImage(path.replace("/\\/g","/"));
+				console.log("path2 : " + path);
+			}else{
+				console.log("self.location"+self.location);
+				console.log("path : " + path);
+				self.location = "/ex03/download?fileName="+path;
+				console.log("self : " + self.location);
+			}									
+		});
+		function showImage(fileCallPath){
+			alert(fileCallPath);
+			$(".bigPictureWrapper").css("display","flex").show();
+			$(".bigPicture")
+			.html("<img src='/ex03/display?fileName="+fileCallPath+"'>")
+			.animate({width:"100%", height:"100%"},1000);
+		}
 		function showReplyPage(replyCnt){
 			var endNum = Math.ceil(pageNum / 10.0) * 10;
 			var startNum = endNum - 9;
@@ -293,6 +439,11 @@ $(document).ready(function(){
 			openForm.attr("action","${pageContext.request.contextPath}/board/list");
 			openForm.submit();
 		});
+
+
 	});
+
+
+		
 </script>
 <%@ include file="../includes/footer.jsp" %>

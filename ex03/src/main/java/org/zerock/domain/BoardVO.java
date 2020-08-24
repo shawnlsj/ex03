@@ -1,6 +1,7 @@
 package org.zerock.domain;
 
 import java.util.Date;
+import java.util.List;
 
 public class BoardVO {
 
@@ -12,6 +13,8 @@ public class BoardVO {
 	private Date updateDate; //UPDATEDATE	DATE
 	
 	private int replyCnt;
+	
+	private List<BoardAttachVO> attachList;
 	
 	public Long getBno() {
 		return bno;
@@ -58,10 +61,21 @@ public class BoardVO {
 		this.replyCnt = replyCnt;
 	}
 	
+	
+	
+	public List<BoardAttachVO> getAttachList() {
+		return attachList;
+	}
+	public void setAttachList(List<BoardAttachVO> attachList) {
+		this.attachList = attachList;
+	}
 	@Override
 	public String toString() {
 		return "BoardVO [bno=" + bno + ", title=" + title + ", content=" + content + ", writer=" + writer + ", regdate="
-				+ regdate + ", updateDate=" + updateDate + ", replyCnt=" + replyCnt + "]";
-	}	
+				+ regdate + ", updateDate=" + updateDate + ", replyCnt=" + replyCnt + ", attachList=" + attachList
+				+ "]";
+	}
+	
+	
 	
 }
