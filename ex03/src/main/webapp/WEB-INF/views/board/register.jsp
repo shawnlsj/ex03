@@ -3,6 +3,8 @@
 <%@ include file="../includes/header.jsp" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>   
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>   
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
+
 <style>
     .uploadResult {
         width:100%;
@@ -68,6 +70,7 @@
             <div class="panel-heading">Board Register</div>
             <div class="panel-body">
                 <form role="form" action="${pageContext.request.contextPath }/board/register" method="post">
+                   <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                     <div class="form-group">
                         <label>Title</label>
                         <input class="form-control" name="title">
@@ -78,7 +81,9 @@
                     </div>
                     <div class="form-group">
                         <label>Writer</label>
-                        <input class="form-control" name="writer">
+                        <input class="form-control" name="writer"
+                        value="<sec:authentication property='principal.username'/>"
+                        readonly="readonly">
                     </div>
                     <button type="submit" class="btn btn-default">Submit Button</button>        
                     <button type="reset" class="btn btn-default">Reset Button</button>
@@ -104,10 +109,13 @@
                 
             </div>
         </div>
-    </div>
+    </div> 
 </div>
 <script>
     $(document).ready(function(e){
+    	var csrfHeaderName = "${_csrf.headerName}";
+    	var csrfTokenValue = "${_csrf.token}";
+    	
         var formObj = $("form[role='form']");
         $("button[type='submit']").on("click", function(e){
             e.preventDefault();
@@ -212,6 +220,9 @@
         $.ajax({
             url: "/ex03/deleteFile",
             data: {fileName: targetFile, type:type},
+            beforeSend : function(xhr){
+            	xhr.setRequestHeader(csrfHedaerName, csrfTokenValue);
+            },
             dataType: "text",
             type: "POST",
             success: function(result){
@@ -222,6 +233,7 @@
     });
 
     $("input[type='file']").change(function(e){
+    	
         var formData = new FormData();
 
         var inputFile = $("input[name='uploadFile']");
@@ -239,6 +251,9 @@
             url: "/ex03/uploadAjaxAction",
             processData: false,
             contentType: false,
+            beforeSend: function(xhr){
+            	xhr.setRequestHedaer(csrfHedaerName, csrfTokenValue);
+            },
             data: formData,
             type: "POST",
             dataType:"json",

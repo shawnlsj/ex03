@@ -3,6 +3,8 @@
 <%@ include file="../includes/header.jsp"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
+
 <style>
     .uploadResult {
         width:100%;
@@ -67,7 +69,7 @@
 			<div class="panel-heading">Board Register</div>
 			<div class="panel-body">
 				<form role="form" action="${pageContext.request.contextPath}/board/modify" method="post">
-
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 					<div class="form-group">
 						<label>Bno</label> <input class="form-control" name="bno"
 							value="<c:out value="${board.bno }"/>" readonly="readonly">
@@ -102,8 +104,13 @@
 							readonly="readonly">
 					</div>
 
+					<sec:authentication property="principal" var="pinfo"/>
+					<sec:authorize access="isAuthenticated()">
+					<c:if test="${pinfo_.username eq board.wrtier}">
 					<button data-oper="modify" class="btn btn-default">Modify</button>
 					<button data-oper="remove" class="btn btn-danger">Remove</button>
+					</c:if>
+					</sec:authorize>
 					<button data-oper="list" class="btn btn-default">List</button>
 					
 					<input type="hidden" name="pageNum" value="<c:out value="${cri.pageNum}"/>">
@@ -134,6 +141,9 @@
 </div>
 <script>
 	$(document).ready(function() {
+    	var csrfHeaderName = "${_csrf.headerName}";
+    	var csrfTokenValue = "${_csrf.token}";
+    	
 		var formObj = $("form");
 		var bno = "<c:out value='${board.bno}'/>";
 		
@@ -220,6 +230,9 @@
             contentType: false,
             data: formData,
             type: "POST",
+            beforeSend: function(xhr){
+            	xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+            },
             dataType:"json",
             success:function(result){
                 //console.log(result);

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,16 +48,26 @@ public class BoardController {
 	}
 	
 	@GetMapping("/register")
+	@PreAuthorize("isAuthenticated()")
 	public void register() {
 		
 	}
+	
 	@PostMapping("/register")
+	@PreAuthorize("isAuthenticated()")
 	public String register(BoardVO board, RedirectAttributes rttr) {
 		log.info("==================");
 		log.info("register: " + board);
-		service.register(board);
-		rttr.addFlashAttribute("result", board.getBno());
+		
+		if(board.getAttachList() != null) {
+			board.getAttachList().forEach(attach -> log.info(attach));
+		}
+		
 		log.info("==================");
+
+		service.register(board);
+		
+		rttr.addFlashAttribute("result", board.getBno());
 		
 		return "redirect:/board/list";
 	}
@@ -67,6 +78,7 @@ public class BoardController {
 		model.addAttribute("board",service.get(bno));
 	}
 	
+	@PreAuthorize("principal.username == #board.writer")
 	@PostMapping("/modify")
 	public String modify(BoardVO board, RedirectAttributes rttr, Criteria cri) {
 		log.info("modify :" + board);
@@ -78,6 +90,7 @@ public class BoardController {
 		return "redirect:/board/list" + cri.getListLink();
 	}
 	
+	@PreAuthorize("principal.username == #writer")
 	@PostMapping("/remove")
 	public String remove(@RequestParam("bno") Long bno, RedirectAttributes rttr, Criteria cri) {
 		log.info("remove..." + bno);
@@ -86,8 +99,9 @@ public class BoardController {
 		
 		if(service.remove(bno)) {
 			deleteFiles(attachList);
+			rttr.addFlashAttribute("result","success");
 		}
-		rttr.addFlashAttribute("result","success");
+		
 		
 		return "redirect:/board/list" + cri.getListLink();
 	}
